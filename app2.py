@@ -3,8 +3,7 @@ import requests
 from dotenv import load_dotenv
 from transformers import pipeline
 
-keyword = 'silver'
-date = '2026-01-29'
+keyword = 'NVDA'
 language = 'en'
 published = 0
 
@@ -16,24 +15,34 @@ API_KEY = os.getenv('key')
 if not API_KEY:
     raise ValueError('Missing API_KEY in environment.')
 
-url = (
-    'https://newsapi.org/v2/everything?'
-    f'q={keyword}&'
-    f'from={date}&'
-    f'language={language}&'
-    'sortBy=publishedAt&'
-    f'apiKey={API_KEY}'
-)
+page = 1
+articles = []
 
-response = requests.get(url)
+while True:
+    url = (
+        'https://newsapi.org/v2/everything?'
+        f'q={keyword}&'
+        f'language={language}&'
+        f'page={page}&'
+        'sortBy=publishedAt&'
+        f'apiKey={API_KEY}'
+    )
 
-articles = response.json()['articles']
-articles = [
-    article
-    for article in articles
-    if keyword.lower() in (article.get('title') or '').lower()
-    or keyword.lower() in (article.get('description') or '').lower()
-]
+    response = requests.get(url)
+    page_articles = response.json().get('articles', [])
+    if not page_articles:
+        break
+
+    articles.extend(
+        [
+            article
+            for article in page_articles
+            if keyword.lower() in (article.get('title') or '').lower()
+            or keyword.lower() in (article.get('description') or '').lower()
+        ]
+    )
+
+    page += 1
 
 total_score = 0
 num_articles = 0

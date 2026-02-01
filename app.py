@@ -1,8 +1,8 @@
 import feedparser
 from transformers import pipeline
 
-ticker = 'SI=F'
-keyword = 'silver'
+ticker = 'ASML'
+keyword = 'asml'
 
 pipe = pipeline("text-classification", model="ProsusAI/finbert")
 
